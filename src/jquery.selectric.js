@@ -163,6 +163,8 @@
             close   : _close,
             destroy : _destroy,
             refresh : _refresh,
+            enable  : _enable,
+            disable : _disable,
             init    : _init
           };
 
@@ -537,6 +539,26 @@
             !preserveData && $original.removeData(pluginName).removeData('value');
             $original.prop('tabindex', tabindex).off(bindSufix).off(eventTriggers).unwrap().unwrap();
             isEnabled = false;
+          }
+        }
+
+        // Disable
+        function _disable(preserveData) {
+          if ( isEnabled ) {
+            $original.prop("disabled", true);
+            _utils.triggerCallback('Refresh', _this);
+            _populate();
+            isEnabled = false;
+          }
+        }
+
+        // Enable
+        function _enable(preserveData) {
+          if ( !isEnabled ) {
+            $original.prop("disabled", false);
+            _utils.triggerCallback('Refresh', _this);
+            _populate();
+            isEnabled = true;
           }
         }
 

@@ -299,6 +299,8 @@ Selectric.open();    // Open options
 Selectric.close();   // Close options
 Selectric.destroy(); // Destroy select and go back to normal
 Selectric.refresh(); // Reconstruct the plugin options box
+Selectric.enable();  // Enable disabled select
+Selectric.disable(); // Disable enabled select
 Selectric.init();    // Reinitialize the plugin
 
 // Or...
@@ -306,6 +308,8 @@ $('select').selectric('open');    // Open options
 $('select').selectric('close');   // Close options
 $('select').selectric('destroy'); // Destroy select and go back to normal
 $('select').selectric('refresh'); // Reconstruct the plugin options box
+$('select').selectric('enable');  // Enable disabled select
+$('select').selectric('disable'); // Disable enabled select
 $('select').selectric('init');    // Reinitialize the plugin
 ```
 
