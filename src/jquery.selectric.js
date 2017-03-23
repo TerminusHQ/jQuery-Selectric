@@ -1023,23 +1023,27 @@
 
         _this.state.enabled = false;
       }
-    }
+    },
 
     // Disable
     disable: function(preserveData) {
+      var _this = this;
+
       if ( _this.state.enabled ) {
         _this.$element.prop("disabled", true);
         _this.refresh();
         _this.state.enabled = false;
       }
-    }
+    },
 
     // Enable
-    function _enable(preserveData) {
+    enable: function(preserveData) {
+      var _this = this;
+
       if ( !_this.state.enabled ) {
         _this.$element.prop("disabled", false);
         _this.refresh();
-        _this.$element = true;
+        _this.state.enabled = false;
       }
     }
   };
