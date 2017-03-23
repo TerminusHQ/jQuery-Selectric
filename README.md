@@ -1,5 +1,9 @@
-[![JS.ORG](https://img.shields.io/badge/js.org-selectric-ffb400.svg?style=flat-square)](http://js.org)
-#jQuery Selectric ![icon](http://i.imgur.com/D2hcnUN.png)
+[![JS.ORG](https://img.shields.io/badge/js.org-selectric-ffb400.svg)](http://js.org)
+[![Travis](https://img.shields.io/travis/lcdsantos/jQuery-Selectric.svg)](https://travis-ci.org/lcdsantos/jQuery-Selectric)
+[![codecov.io](https://codecov.io/github/lcdsantos/jQuery-Selectric/coverage.svg?branch=master)](https://codecov.io/github/lcdsantos/jQuery-Selectric?branch=master)
+[![npm](https://img.shields.io/npm/v/selectric.svg)](https://www.npmjs.com/package/selectric)
+
+# jQuery Selectric ![icon](http://i.imgur.com/D2hcnUN.png)
 
 jQuery Selectric is a jQuery plugin designed to help at stylizing and manipulating HTML selects.
 
@@ -8,16 +12,16 @@ jQuery Selectric is a jQuery plugin designed to help at stylizing and manipulati
 * Pretty lightweight
 * Options box always stay visible
 * Doesn't rely on external libraries (besides jQuery)
-* Word search works with western latin characters set (e.g.: á, ñ, ç...)
+* Word search works with western latin characters set (for example: á, ñ, ç...)
 
-###[Demo](http://lcdsantos.github.io/jQuery-Selectric/)
+### [Demo](http://lcdsantos.github.io/jQuery-Selectric/)
 
-##How to use:
+## How to use:
 
 Make sure to include jQuery in your page:
 
 ```html
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 ```
 
 Include **jQuery Selectric:**
@@ -36,13 +40,13 @@ Initialize **jQuery Selectric:**
 
 ```html
 <script>
-$(function(){
+$(function() {
   $('select').selectric();
 });
 </script>
 ```
 
-##Options:
+## Options:
 
 You can pass an options object as the first parameter when you call the plugin. For example:
 ```js
@@ -67,7 +71,7 @@ $('select').selectric({
 
   /*
    * Type: Function
-   * Description: Function called plugin has been fully initialized
+   * Description: Function called before select options opens
    */
   onBeforeOpen: function() {},
 
@@ -132,7 +136,7 @@ $('select').selectric({
    * Type: Boolean
    * Description: Initialize plugin on mobile browsers
    */
-  disableOnMobile: true,
+  disableOnMobile: false,
 
   /*
    * Type: Boolean
@@ -161,15 +165,10 @@ $('select').selectric({
   /*
    * Type: Object
    * Description: Customize classes.
-   *              Every class in 'postfixes' should be separate with a
-   *              space and follow this exact order:
-   *              'Input Items Open Disabled TempShow HideSelect Wrapper
-   *              Hover Responsive Above Scroll Group GroupLabel'
    */
   customClass: {
-    prefix: 'selectric',
-    camelCase: false,
-    overwrite: true
+    prefix: 'selectric', // Type: String.  Description: Prefixed string of every class name.
+    camelCase: false     // Type: Boolean. Description: Switch classes style between camelCase or dash-case.
   },
 
   /*
@@ -178,11 +177,33 @@ $('select').selectric({
    *
    *              If it's a string, all keys wrapped in brackets will be replaced by
    *              the respective values in itemData. Available keys are:
-   *              'value', 'text', 'slug', 'disabled'.
+   *              'value', 'text', 'slug', 'index'.
    *
-   *              If it's a function, it will be called with the following parameters:
-   *              (itemData, element, index). The function must return a string,
-   *              no keys will be replaced in this method.
+   *              If it's a function, it will be called with the following parameter:
+   *              (itemData). The function must return a string. If available all keys
+   *              will be replaced by the respective values in itemData.
+   *
+   *              itemData<Object> {
+   *                 className // Type: String.          Description: option class names.
+   *                 disabled  // Type: Boolean.         Description: option is disabled true/false
+   *                 selected  // Type: Boolean.         Description: option is selected true/false
+   *                 element   // Type: HTMLDomElement.  Description: current select element
+   *                 index     // Type: Number.          Description: current option index
+   *                 slug      // Type: String.          Description: option slug
+   *                 text      // Type: String.          Description: option text
+   *                 value     // Type: String.          Description: option value
+   *              }
+   *
+   *              EXAMPLE:
+   *
+   *              function(itemData) {
+   *                  return '{text}';
+   *              }
+   *
+   *              // you're free to build and return your own strings
+   *              function(itemData) {
+   *                  return itemData.text + '(' + itemData.index + ')';
+   *              }
    */
   optionsItemBuilder: '{text}',
 
@@ -215,20 +236,36 @@ $('select').selectric({
 
   /*
    * Type: Boolean
+   * Description: call stopProgation on onOpen click event
+   */
+  stopPropagation: true,
+
+  /*
+   * Type: Boolean
    * Description: Determine if current selected option should jump to
    *              first (or last) once reach the end (or start) item of list upon
    *              keyboard arrow navigation.
    */
-  allowWrap: false
+  allowWrap: true,
+
+  /*
+   * Type: Object
+   * Description: Customize select "multiple" behavior
+   */
+  multiple: {
+    separator: ', ',       // Type: String.             Description: Items separator.
+    keepMenuOpen: true,    // Type: Boolean.            Description: Close after an item is selected.
+    maxLabelEntries: false // Type: Boolean or Integer. Description: Max selected items do show.
+  }
 }
 ```
 
-##Events:
+## Events:
 
 All events are called on original element, first argument is the original element too. And can be bound like this:
 
 ```js
-$('select').on('eventname', function(element){
+$('select').on('eventname', function(element) {
   // your code
 });
 ```
@@ -265,6 +302,22 @@ $('select').on('eventname', function(element){
     <td>Fired after select options closes</td>
   </tr>
   <tr>
+    <td><code>selectric-before-highlight</code></td>
+    <td>Fired before a select option is highlighted</td>
+  </tr>
+  <tr>
+    <td><code>selectric-highlight</code></td>
+    <td>Fired when a select option is highlighted</td>
+  </tr>
+  <tr>
+    <td><code>selectric-before-select</code></td>
+    <td>Fired before a select option is selected</td>
+  </tr>
+  <tr>
+    <td><code>selectric-select</code></td>
+    <td>Fired before a select option is selected</td>
+  </tr>
+  <tr>
     <td><code>selectric-before-change</code></td>
     <td>Fired before select options change</td>
   </tr>
@@ -278,19 +331,7 @@ $('select').on('eventname', function(element){
   </tr>
 </table>
 
-##Hooks:
-
-Check [jquery.selectric.placeholder.js](plugins/jquery.selectric.placeholder.js) source for a usage example
-
-```js
-// Add a callback everytime 'callbackName' is called
-$.fn.selectric.hooks.add('callbackName', 'hookName', function(element, data) {});
-
-// Remove a callback
-$.fn.selectric.hooks.remove('callbackName', 'hookName');
-```
-
-##Public methods:
+## Public methods:
 
 ```js
 var Selectric = $('select').data('selectric');
@@ -313,7 +354,7 @@ $('select').selectric('disable'); // Disable enabled select
 $('select').selectric('init');    // Reinitialize the plugin
 ```
 
-##Browser support:
+## Browser support:
 
 * Firefox
 * Chrome
