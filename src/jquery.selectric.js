@@ -27,7 +27,7 @@
   var $win = $(window);
 
   var pluginName = 'selectric';
-  var classList = 'Input Items Open Disabled TempShow HideSelect Wrapper Focus Hover Responsive Above Scroll Group GroupLabel';
+  var classList = 'Input Items Open Disabled TempShow HideSelect Wrapper Focus Hover Responsive Above Below Scroll Group GroupLabel';
   var eventNamespaceSuffix = '.sl';
 
   var chars = ['a', 'e', 'i', 'o', 'u', 'n', 'c', 'y'];
@@ -172,7 +172,7 @@
        * @return {string}       The string transformed to dash-case.
        */
       toDash: function(str) {
-        return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
       },
 
       /**
@@ -474,6 +474,7 @@
         className : $elm.prop('class'),
         text      : $elm.html(),
         slug      : $.trim(_this.utils.replaceDiacritics($elm.html())),
+        alt       : $elm.attr('data-alt'),
         selected  : $elm.prop('selected'),
         disabled  : isDisabled
       };
@@ -550,7 +551,7 @@
           itemData.selected                 ? 'selected' : ''
         ]),
         $.isFunction(itemBuilder)
-          ? _this.utils.format(itemBuilder(itemData), itemData)
+          ? _this.utils.format(itemBuilder(itemData, this.$element, index), itemData)
           : _this.utils.format(itemBuilder, filteredItemData)
       );
     },
@@ -629,9 +630,25 @@
             if ( val.length ) {
               // Search in select options
               $.each(_this.items, function(i, elm) {
-                if ( !elm.disabled && searchRegExp.test(elm.text) || searchRegExp.test(elm.slug) ) {
-                  _this.highlight(i);
+                if (elm.disabled) {
                   return;
+                }
+                if (searchRegExp.test(elm.text) || searchRegExp.test(elm.slug)) {
+                  _this.highlight(i);
+                  return false;
+                }
+                if (!elm.alt) {
+                  return;
+                }
+                var altItems = elm.alt.split('|');
+                for (var ai = 0; ai < altItems.length; ai++) {
+                  if (!altItems[ai]) {
+                    break;
+                  }
+                  if (searchRegExp.test(altItems[ai].trim())) {
+                    _this.highlight(i);
+                    return false;
+                  }
                 }
               });
             }
@@ -755,21 +772,30 @@
     /** Detect if the options box is inside the window */
     isInViewport: function() {
       var _this = this;
-      var scrollTop = $win.scrollTop();
-      var winHeight = $win.height();
-      var uiPosX = _this.elements.outerWrapper.offset().top;
-      var uiHeight = _this.elements.outerWrapper.outerHeight();
 
-      var fitsDown = (uiPosX + uiHeight + _this.itemsHeight) <= (scrollTop + winHeight);
-      var fitsAbove = (uiPosX - _this.itemsHeight) > scrollTop;
+      if (_this.options.forceRenderAbove === true) {
+        _this.elements.outerWrapper.addClass(_this.classes.above);
+      } else if (_this.options.forceRenderBelow === true) {
+        _this.elements.outerWrapper.addClass(_this.classes.below);
+      } else {
+        var scrollTop = $win.scrollTop();
+        var winHeight = $win.height();
+        var uiPosX = _this.elements.outerWrapper.offset().top;
+        var uiHeight = _this.elements.outerWrapper.outerHeight();
 
-      // If it does not fit below, only render it
-      // above it fit's there.
-      // It's acceptable that the user needs to
-      // scroll the viewport to see the cut off UI
-      var renderAbove = !fitsDown && fitsAbove;
+        var fitsDown = (uiPosX + uiHeight + _this.itemsHeight) <= (scrollTop + winHeight);
+        var fitsAbove = (uiPosX - _this.itemsHeight) > scrollTop;
 
-      _this.elements.outerWrapper.toggleClass(_this.classes.above, renderAbove);
+        // If it does not fit below, only render it
+        // above it fit's there.
+        // It's acceptable that the user needs to
+        // scroll the viewport to see the cut off UI
+        var renderAbove = !fitsDown && fitsAbove;
+        var renderBelow = !renderAbove;
+
+        _this.elements.outerWrapper.toggleClass(_this.classes.above, renderAbove);
+        _this.elements.outerWrapper.toggleClass(_this.classes.below, renderBelow);
+      }
     },
 
     /**
@@ -1082,6 +1108,8 @@
     preventWindowScroll  : true,
     inheritOriginalWidth : false,
     allowWrap            : true,
+    forceRenderAbove     : false,
+    forceRenderBelow     : false,
     stopPropagation      : true,
     optionsItemBuilder   : '{text}', // function(itemData, element, index)
     labelBuilder         : '{text}', // function(currItem)

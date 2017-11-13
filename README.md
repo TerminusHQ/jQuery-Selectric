@@ -2,6 +2,7 @@
 [![Travis](https://img.shields.io/travis/lcdsantos/jQuery-Selectric.svg)](https://travis-ci.org/lcdsantos/jQuery-Selectric)
 [![codecov.io](https://codecov.io/github/lcdsantos/jQuery-Selectric/coverage.svg?branch=master)](https://codecov.io/github/lcdsantos/jQuery-Selectric?branch=master)
 [![npm](https://img.shields.io/npm/v/selectric.svg)](https://www.npmjs.com/package/selectric)
+[![jsDelivr Hits](https://data.jsdelivr.com/v1/package/npm/selectric/badge?style=rounded)](https://www.jsdelivr.com/package/npm/selectric)
 
 # jQuery Selectric ![icon](http://i.imgur.com/D2hcnUN.png)
 
@@ -17,6 +18,12 @@ jQuery Selectric is a jQuery plugin designed to help at stylizing and manipulati
 ### [Demo](http://lcdsantos.github.io/jQuery-Selectric/)
 
 ## How to use:
+
+Install via NPM:
+
+```html
+npm install selectric
+```
 
 Make sure to include jQuery in your page:
 
@@ -247,6 +254,21 @@ $('select').selectric({
    *              keyboard arrow navigation.
    */
   allowWrap: true,
+
+  /*
+   * Type: Boolean
+   * Description: By default the options box gets opened above if it's outside the window.
+   *              In case this auto detection doesn't work as expected (e.g. in transform/relative scopes)
+   *              you may force opening above.
+   */
+  forceRenderAbove: false,
+
+  /*
+   * Type: Boolean
+   * Description: In some cases the options box gets opened above even though the desired behavior would be below.
+   *              If the auto dectection doesn't work as expected you may force opening below.
+   */
+  forceRenderBelow: false,
 
   /*
    * Type: Object

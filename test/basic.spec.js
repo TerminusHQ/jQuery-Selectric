@@ -80,6 +80,67 @@ describe('basic suite', function() {
     expect(select.val()).toBe('banana');
   });
 
+  it('partial search should return first match', function() {
+    $('.selectric-input').val('b').trigger('input');
+    $('.selectric-items').find('.highlighted').click();
+    expect(select.val()).toBe('banana');
+  });
+
+  it('should not search a disabled option', function() {
+    select.find('option:eq(4)').prop('disabled', 'disabled');
+    select.selectric('refresh');
+    $('.selectric-input').val('banana').trigger('input');
+    $('.selectric-items').find('.highlighted').lenght;
+    expect($('.selectric-items').find('.highlighted').length).toBe(0);
+  });  
+
+  it('should search alternative text', function () {
+    select.find('option:eq(6)').attr('data-alt', 'alt blackberry');
+    select.selectric('refresh');
+    $('.selectric-input').val('alt blackberry').trigger('input');
+    $('.selectric-items').find('.highlighted').click();
+    expect(select.val()).toBe('blackberry');
+  });
+
+  it('should search alternative text with separator', function () {
+    select.find('option:eq(6)').attr('data-alt', 'alt blackberry | another berry');
+    select.selectric('refresh');
+    $('.selectric-input').val('alt blackberry').trigger('input');
+    $('.selectric-items').find('.highlighted').click();
+    expect(select.val()).toBe('blackberry');
+  });
+
+  it('should match first alternative text', function () {
+    select.find('option:eq(8)').attr('data-alt', 'alt blueberry | zebra');
+    select.find('option:eq(9)').attr('data-alt', 'alt cantalope | zilch');
+    select.selectric('refresh');
+    $('.selectric-input').val('z').trigger('input');
+    $('.selectric-items').find('.highlighted').click();
+    expect(select.val()).toBe('blueberry');
+  });
+
+  it('should search alternative text with separator 2', function () {
+    select.find('option:eq(6)').attr('data-alt', 'alt blackberry | another berry');
+    select.selectric('refresh');
+    $('.selectric-input').val('another berry').trigger('input');
+    $('.selectric-items').find('.highlighted').click();
+    expect(select.val()).toBe('blackberry');
+  });  
+
+  it('should skip blank alternative text', function () {
+    select.find('option:eq(6)').attr('data-alt', '');
+    select.selectric('refresh');
+    $('.selectric-input').val('a text that does not exist').trigger('input');
+    expect($('.selectric-items').find('.highlighted').length).toBe(0);
+  });    
+
+  it('should skip blank alternative text with separator', function () {
+    select.find('option:eq(6)').attr('data-alt', '|');
+    select.selectric('refresh');
+    $('.selectric-input').val('a text that does not exist').trigger('input');
+    expect($('.selectric-items').find('.highlighted').length).toBe(0);
+  });    
+
   it('highlight() should return undefined if index is undefined', function () {
     expect(select.data('selectric').highlight(undefined)).toBe(undefined);
   });
@@ -160,14 +221,36 @@ describe('basic suite', function() {
     expect($('.selectric-wrapper').find('.label').find('strong').length).toBe(1);
   });
 
-  it('should have custom option item text', function() {
-    select.selectric({
-      optionsItemBuilder: function(itemData) {
-        return '<span>' + itemData.text + '</span>';
-      }
+  describe('optionsItemBuilder', function () {
+
+    it('should have custom option item text', function() {
+      select.selectric({
+        optionsItemBuilder: function(itemData) {
+          return '<span>' + itemData.text + '</span>';
+        }
+      });
+      $('.selectric').click();
+      expect($('.selectric-items').find('li.selected').find('span').length).toBe(1);
     });
-    $('.selectric').click();
-    expect($('.selectric-items').find('li.selected').find('span').length).toBe(1);
+
+    it('should have element available',function () {
+      select.selectric({
+        optionsItemBuilder: function(itemData, element) {
+          element.addClass('testtest');
+          return '<span>' + itemData.text + '</span>';
+        }
+      });
+      expect(select).toHaveClass('testtest');
+    });
+
+    it('should have index available',function () {
+      select.selectric({
+        optionsItemBuilder: function(itemData, element, index) {
+          return '<span class="item-' + index +'">' + itemData.text + '</span>';
+        }
+      });
+      expect($('.selectric-items').find('li:first').find('.item-0').length).toBe(1);
+    });
   });
 
   it('should have same width of original <select>', function() {
@@ -203,6 +286,15 @@ describe('basic suite', function() {
       }
     });
     expect($('.custom-wrapper').length).toBe(1);
+  });
+
+  it('should change classes even if last char is a number', function() {
+    select.selectric({
+      customClass: {
+        prefix: 'custom2'
+      }
+    });
+    expect($('.custom2-wrapper').length).toBe(1);
   });
 
   it('should change classes to camelcase', function() {
